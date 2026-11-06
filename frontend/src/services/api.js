@@ -1,7 +1,11 @@
-const BASE_URL = "https://course-kqdu.vercel.app/";
+
+const BASE_URL = "https://course-kqdu.vercel.app".replace(/\/+$/, "");
 
 const getHeaders = () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -10,9 +14,13 @@ const getHeaders = () => {
 
 const handleResponse = async (res) => {
   const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    throw new Error(data.message || `Request failed with status ${res.status}`);
+    throw new Error(
+      data.message || `Request failed with status ${res.status}`
+    );
   }
+
   return data;
 };
 
@@ -21,11 +29,13 @@ export const api = {
   login: async (email, password, role) => {
     const payload = { email, password };
     if (role) payload.role = role;
+
     const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
     return handleResponse(res);
   },
 
@@ -35,6 +45,7 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
     });
+
     return handleResponse(res);
   },
 
@@ -42,6 +53,7 @@ export const api = {
     const res = await fetch(`${BASE_URL}/profile`, {
       headers: getHeaders(),
     });
+
     return handleResponse(res);
   },
 
@@ -51,6 +63,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(profileData),
     });
+
     return handleResponse(res);
   },
 
@@ -60,6 +73,7 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
+
     return handleResponse(res);
   },
 
@@ -69,22 +83,35 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
     });
+
     return handleResponse(res);
   },
 
   // Courses
   getCourses: async (filters = {}) => {
     const params = new URLSearchParams();
-    if (filters.semester && filters.semester !== "all") params.append("semester", filters.semester);
-    if (filters.department && filters.department !== "all") params.append("department", filters.department);
-    if (filters.search) params.append("search", filters.search);
-    const queryString = params.toString() ? `?${params.toString()}` : "";
+
+    if (filters.semester && filters.semester !== "all")
+      params.append("semester", filters.semester);
+
+    if (filters.department && filters.department !== "all")
+      params.append("department", filters.department);
+
+    if (filters.search)
+      params.append("search", filters.search);
+
+    const queryString = params.toString()
+      ? `?${params.toString()}`
+      : "";
+
     const res = await fetch(`${BASE_URL}/courses${queryString}`);
+
     return handleResponse(res);
   },
 
   getCourseById: async (id) => {
     const res = await fetch(`${BASE_URL}/courses/${id}`);
+
     return handleResponse(res);
   },
 
@@ -94,6 +121,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(courseData),
     });
+
     return handleResponse(res);
   },
 
@@ -103,6 +131,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(courseData),
     });
+
     return handleResponse(res);
   },
 
@@ -111,6 +140,7 @@ export const api = {
       method: "DELETE",
       headers: getHeaders(),
     });
+
     return handleResponse(res);
   },
 
@@ -121,43 +151,75 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify({ courseId }),
     });
+
     return handleResponse(res);
   },
 
   getMyCourses: async (status = "all") => {
-    const query = status && status !== "all" ? `?status=${status}` : "";
+    const query =
+      status && status !== "all"
+        ? `?status=${encodeURIComponent(status)}`
+        : "";
+
     const res = await fetch(`${BASE_URL}/myCourses${query}`, {
       headers: getHeaders(),
     });
+
     return handleResponse(res);
   },
 
   cancelRegistration: async (registrationId) => {
-    const res = await fetch(`${BASE_URL}/cancelRegistration/${registrationId}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
+    const res = await fetch(
+      `${BASE_URL}/cancelRegistration/${registrationId}`,
+      {
+        method: "DELETE",
+        headers: getHeaders(),
+      }
+    );
+
     return handleResponse(res);
   },
 
   getAllRegistrations: async (filters = {}) => {
     const params = new URLSearchParams();
-    if (filters.status && filters.status !== "all") params.append("status", filters.status);
-    if (filters.courseId && filters.courseId !== "all") params.append("courseId", filters.courseId);
-    if (filters.search) params.append("search", filters.search);
-    const queryString = params.toString() ? `?${params.toString()}` : "";
-    const res = await fetch(`${BASE_URL}/allRegistrations${queryString}`, {
-      headers: getHeaders(),
-    });
+
+    if (filters.status && filters.status !== "all")
+      params.append("status", filters.status);
+
+    if (filters.courseId && filters.courseId !== "all")
+      params.append("courseId", filters.courseId);
+
+    if (filters.search)
+      params.append("search", filters.search);
+
+    const queryString = params.toString()
+      ? `?${params.toString()}`
+      : "";
+
+    const res = await fetch(
+      `${BASE_URL}/allRegistrations${queryString}`,
+      {
+        headers: getHeaders(),
+      }
+    );
+
     return handleResponse(res);
   },
 
-  approveRegistration: async (registrationId, status = "Approved", adminComments = "") => {
-    const res = await fetch(`${BASE_URL}/approveRegistration/${registrationId}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify({ status, adminComments }),
-    });
+  approveRegistration: async (
+    registrationId,
+    status = "Approved",
+    adminComments = ""
+  ) => {
+    const res = await fetch(
+      `${BASE_URL}/approveRegistration/${registrationId}`,
+      {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify({ status, adminComments }),
+      }
+    );
+
     return handleResponse(res);
   },
 
@@ -165,6 +227,7 @@ export const api = {
     const res = await fetch(`${BASE_URL}/reports/enrollment`, {
       headers: getHeaders(),
     });
+
     return handleResponse(res);
   },
 };
