@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://course-kqdu.vercel.app/";
 
 const getHeaders = () => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
